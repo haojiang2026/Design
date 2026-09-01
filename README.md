@@ -69,7 +69,7 @@ pT1.true = c(0.22,0.45,0.50,0.55)
 pE0.true = c(0.40,0.55,0.58,0.60)
 pE1.true = c(0.50,0.60,0.65,0.68)
 
-#arguments
+#set arguments
 rho0=0
 rho1=0
 phi.pT=0.30
