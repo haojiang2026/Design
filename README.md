@@ -50,7 +50,7 @@ The `get.oc()` function in these files requires some or all of the following arg
 
 ---
 
-## Example
+## Simulation example
 
 The following example illustrates how to reproduce the simulation results for Scenario 1 using the proposed design implemented in `Functions_for_Design.R`.
 
@@ -96,30 +96,31 @@ get.oc(pI.true,pT0.true,pT1.true,pE0.true,pE1.true,rho0,rho1,
        phi.pT,phi.pE,cf.pT,cf.pE,ndose,ntrial,ndraw,nstage,nsample,
        utable,seed_number)
 
-
-$pI.true
+#result
+"
+$pI.true (immune response)
 [1] 0.7 0.7 0.7 0.7
 
-$pT.true
+$pT.true (marginal toxicity)
 [1] 0.214 0.435 0.485 0.535
 
-$pE.true
+$pE.true (marginal efficacy)
 [1] 0.470 0.585 0.629 0.656
 
-$U.true
+$U.true (utility)
 [1] 40.6500 42.6050 43.9965 44.0550
 
-$mud.per
+$mud.per (MUD selection percentage)
 [1] 0.7709 0.1100 0.0082 0.0003 0.1106
 
-$pat.per
+$pat.per (patients allocation percentage)
 [1] 0.4290586 0.2212824 0.1774359 0.1722231
 
-$pat.mean
+$pat.mean (patients allocation)
 [1] 24.9725 12.8793 10.3273 10.0239
 
-$pat
+$pat (mean sample size)
 [1] 58.203
-
+"
 
 
