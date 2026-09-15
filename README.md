@@ -175,7 +175,7 @@ ob_data=data.frame(ID=1:40,stage=rep(1,40),
   yE=c(rbinom(5,1,0.33),rbinom(5,1,0.46),rbinom(5,1,0.59),rbinom(5,1,0.59)))
 
 #source functions
-source('C:/Users/14198/Desktop/TrialDesign/package/code/Functions_for_user.R')
+source('Functions_for_user.R')
 
 #get immunity probabilities
 immunity=monitor.I(ob_data,ndose,ndraw)
