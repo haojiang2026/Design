@@ -1,6 +1,6 @@
 # A Bayesian adaptive randomized phase I/II design for immunotherapy trials
 
-This repository contains the R code required to reproduce the simulation results presented in the manuscript.
+This repository contains the R code for reproducing the simulation results presented in the manuscript and for implementing the proposed design in practice.
 
 ## Repository Contents
 
@@ -10,14 +10,15 @@ This repository contains the R code required to reproduce the simulation results
 | `Functions_for_Design.R` | Functions for the proposed design. |
 | `Functions_for_Benchmark.R` | Functions for the benchmark design. |
 | `Functions_for_MCPMod.R` | Functions for the MCP-Mod design. |
-| `Functions_for_spike_and_slab_prior.R` | Functions for the proposed design integrating BOIN design with a spike-and-slab prior. |
-| `Functions_for_uniform_prior.R` | Functions for the proposed design integrating BOIN design with a uniform prior. |
+| `Functions_for_spike_and_slab_prior.R` | Functions for proposed design integrating BOIN design with spike-and-slab prior. |
+| `Functions_for_uniform_prior.R` | Functions for proposed design integrating BOIN design with uniform prior. |
+| `Functions_for_user.R` | Functions for implementing the proposed design in practice. |
 
 ---
 
 ## Arguments
 
-The `get.oc()` function in these files requires some or all of the following arguments, depending on the design:
+The functions in these files requires some or all of the following arguments, depending on the design:
 
 | Argument | Description |
 |---|---|
@@ -135,5 +136,83 @@ $pat.mean (patients allocation)
 $pat (mean sample size)
 [1] 58.203
 "
+```
+
+## Implementation Example
+
+The following example illustrates how to implement the proposed design in practice with the functions provided in `Functions_for_user.R`.
+
+```r
+library(dplyr)
+library(mvtnorm)
+library(Iso)
+library(BOIN)
+library(DoseFinding)
+library(rjags)
+
+#set arguments
+phi.pT=0.30
+phi.pE=0.25
+cf.pT=0.80
+cf.pE=0.80
+ndose=4
+nstage=5
+ndraw=1000
+nsample=c(40,5,5,5,5)
+utable=data.frame(yI=integer(8),yT=integer(8),yE=integer(8),omega=integer(8))
+utable$yI=c(0,0,0,0,1,1,1,1)
+utable$yT=c(0,0,1,1,0,0,1,1)
+utable$yE=c(0,1,0,1,0,1,0,1)
+utable$omega=c(0,80,0,35,5,100,0,45)
+
+
+#observed data in stage 1
+set.seed(1234)
+ob_data=data.frame(ID=1:40,stage=rep(1,40),
+  dose=c(rep(1,10),rep(2,10),rep(3,10),rep(4,10)),
+  yI=c(rbinom(5,1,0.30),rbinom(5,1,0.60),rbinom(5,1,0.60),rbinom(5,1,0.60)),
+  yT=c(rbinom(5,1,0.09),rbinom(5,1,0.14),rbinom(5,1,0.20),rbinom(5,1,0.49)),
+  yE=c(rbinom(5,1,0.33),rbinom(5,1,0.46),rbinom(5,1,0.59),rbinom(5,1,0.59)))
+
+#source functions
+source('C:/Users/14198/Desktop/TrialDesign/package/code/Functions_for_user.R')
+
+#get immunity probabilities
+immunity=monitor.I(ob_data,ndose,ndraw)
+
+#get toxicity probabilities
+toxicity=monitor.T(ob_data,ndose,ndraw,immunity)
+
+#get immunity probabilities
+efficacy=monitor.E(ob_data,ndose,ndraw,immunity)
+
+#get utility scores
+utility=monitor.U(immunity,toxicity,efficacy,utable)
+
+#get admissible dose set
+adm.set=get.adm.set(ndose,phi.pT,phi.pE,cf.pT,cf.pE,toxicity,efficacy)
+
+#get patients allocation in next stage
+stage=2 #set the next stage; nsample[2]=5 patients
+allocation=get.allocation(adm.set,stage,nsample,ndraw,utility)
+
+
+#result
+
+"
+adm.set
+[1] 1 1 1 0
+
+allocation$pmud (allocation probabilities)
+[1] 0.018 0.589 0.393 0.000
+
+allocation$n (number of patients allocated to each dose level in the next stage)
+[1] 0 2 3 0
+"
+
+
+```
+
+
 
 
