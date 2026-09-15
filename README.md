@@ -1,4 +1,4 @@
-# Reproducibility Code for the Simulation Study
+# A Bayesian adaptive randomized phase I/II design for immunotherapy trials
 
 This repository contains the R code required to reproduce the simulation results presented in the manuscript.
 
@@ -44,9 +44,9 @@ The `get.oc()` function in these files requires some or all of the following arg
 | `cohortsize` | Number of patients in each cohort (Required only when integrating BOIN design).|
 | `sigma.spike` | Standard deviation of the spike component (Required only for the spike-and-slab prior).|
 | `sigma.slab` | Standard deviation of the slab component (Required only for the spike-and-slab prior).|
-| `nchain` | Number of MCMC chains (Required only for MCMC). |
-| `burn` | Number of MCMC iterations discarded during the burn-in period (Required only for MCMC). |
-| `thin` | Number of MCMC iterations per retained sample (Required only for MCMC). |
+| `nchain` | Number of MCMC chains (Required only for the spike-and-slab prior). |
+| `burn` | Number of MCMC iterations discarded during burn-in period (Required only for the spike-and-slab prior). |
+| `thin` | Number of MCMC iterations per retained sample (Required only for the spike-and-slab prior). |
 
 ---
 
@@ -62,12 +62,14 @@ library(BOIN)
 library(DoseFinding)
 library(rjags)
 
+
 #scenario 1
 pI.true =  c(0.70,0.70,0.70,0.70)
 pT0.true = c(0.20,0.40,0.45,0.50)
 pT1.true = c(0.22,0.45,0.50,0.55)
 pE0.true = c(0.40,0.55,0.58,0.60)
 pE1.true = c(0.50,0.60,0.65,0.68)
+
 
 #set arguments
 rho0=0
@@ -87,14 +89,25 @@ utable$yI=c(0,0,0,0,1,1,1,1)
 utable$yT=c(0,0,1,1,0,0,1,1)
 utable$yE=c(0,1,0,1,0,1,0,1)
 utable$omega=c(0,80,0,35,5,100,0,45)
+#target.pT=0.30
+#ncohort=12
+#cohortsize=3
+#sigma.spike=0.01
+#sigma.slab=1.1
+#nchain=1
+#burn=5000
+#thin=1
+
 
 #source functions
 source('Functions_for_Design.R')
+
 
 #run get.oc()
 get.oc(pI.true,pT0.true,pT1.true,pE0.true,pE1.true,rho0,rho1,
        phi.pT,phi.pE,cf.pT,cf.pE,ndose,ntrial,ndraw,nstage,nsample,
        utable,seed_number)
+
 
 #result
 "
