@@ -183,7 +183,7 @@ immunity=monitor.I(ob_data,ndose,ndraw)
 #get toxicity probabilities
 toxicity=monitor.T(ob_data,ndose,ndraw,immunity)
 
-#get immunity probabilities
+#get efficacy probabilities
 efficacy=monitor.E(ob_data,ndose,ndraw,immunity)
 
 #get utility scores
