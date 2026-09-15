@@ -366,7 +366,7 @@ get.data=function(stage,ndose,n,pI.ture,pTE.true,ob_data){
 }
 
 
-monitor.I=function(ob_boin,ob_data,ndose,sigma.spike,sigma.slab,ndraw,nchain,burn,thin){
+monitor.I=function(ob_boin,ob_data,ndose,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number){
   
   pI.draw=matrix(0,nrow=ndraw,ncol=ndose)
   
@@ -384,7 +384,7 @@ monitor.I=function(ob_boin,ob_data,ndose,sigma.spike,sigma.slab,ndraw,nchain,bur
     
     w=as.numeric(table(ob_data$dose))
     
-    pI.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin)
+    pI.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number)
     
   } 
   
@@ -395,7 +395,7 @@ monitor.I=function(ob_boin,ob_data,ndose,sigma.spike,sigma.slab,ndraw,nchain,bur
 }
 
 
-monitor.T=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin){
+monitor.T=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number){
   
   pI.draw.pava=as.matrix(immunity$pI.draw.pava)
   
@@ -427,9 +427,9 @@ monitor.T=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,n
       
       if(n2==0){w[i+1,j]=1}
       
-      if(i==0){pT0.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin)}
+      if(i==0){pT0.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number)}
       
-      if(i==1){pT1.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin)}
+      if(i==1){pT1.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number)}
         
     }
   }
@@ -453,7 +453,7 @@ monitor.T=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,n
 }
 
 
-monitor.E=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin){
+monitor.E=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number){
   
   pI.draw.pava=as.matrix(immunity$pI.draw.pava)
   
@@ -485,9 +485,9 @@ monitor.E=function(ob_boin,ob_data,ndose,immunity,sigma.spike,sigma.slab,ndraw,n
       
       if(n2==0){w[i+1,j]=1}
       
-      if(i==0){pE0.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin)}
+      if(i==0){pE0.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number)}
       
-      if(i==1){pE1.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin)}
+      if(i==1){pE1.draw[,j]=get.mcmc(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number)}
         
     }
   }
@@ -621,7 +621,7 @@ get.true=function(ndose,pI.true,pTE.true,utable){
 }
 
 
-get.mcmc=function(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin){
+get.mcmc=function(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin,seed_number){
   
   library(rjags)
   
@@ -645,9 +645,11 @@ get.mcmc=function(n1,y1,n2,y2,sigma.spike,sigma.slab,nchain,ndraw,burn,thin){
 
   }'
   
+  inits=lapply(seq_len(nchain),function(i){list(.RNG.name="base::Wichmann-Hill",.RNG.seed=seed_number+i)})
+  
   data=list(y1=y1,n1=n1,y2=y2,n2=n2,sigma.spike=sigma.spike,sigma.slab=sigma.slab)
   
-  model=jags.model(file=textConnection(model),data=data,n.chains=nchain,quiet=TRUE)
+  model=jags.model(file=textConnection(model),inits=inits,data=data,n.chains=nchain,quiet=TRUE)
   
   niter=ceiling(ndraw/nchain)*thin
   
@@ -732,11 +734,11 @@ get.oc=function(pI.true,pT0.true,pT1.true,pE0.true,pE1.true,rho0,rho1,
       
       ob_data=get.data(stage,ndose.sim,n,pI,pTE,ob_data)
       
-      immunity=monitor.I(ob_boin,ob_data,ndose.sim,sigma.spike,sigma.slab,ndraw,nchain,burn,thin)
+      immunity=monitor.I(ob_boin,ob_data,ndose.sim,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number)
       
-      toxicity=monitor.T(ob_boin,ob_data,ndose.sim,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin)
+      toxicity=monitor.T(ob_boin,ob_data,ndose.sim,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number)
       
-      efficacy=monitor.E(ob_boin,ob_data,ndose.sim,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin)
+      efficacy=monitor.E(ob_boin,ob_data,ndose.sim,immunity,sigma.spike,sigma.slab,ndraw,nchain,burn,thin,seed_number)
       
       adm.set=get.adm.set(ndose.sim,phi.pT,phi.pE,cf.pT,cf.pE,toxicity,efficacy)
       
